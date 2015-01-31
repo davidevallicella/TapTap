@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">taptap</string>
+    <string name="cb_sampling_text">Sampling</string>
+
+    <string name="default_accelsensorname">AccelSensor</string>
+
+    <string name="default_gyrosensorname">GyroSensor</string>
+
+    <string name="start">Start</string>
+
+    <string name="stop">Stop</string>
+
+</resources>
+

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<LinearLayout
+    android:orientation="vertical"
+    android:layout_height="fill_parent"
+    android:layout_width="fill_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:text="@string/default_accelsensorname"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:id="@+id/accelsensorname"/>
+
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:text="@string/default_gyrosensorname"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:id="@+id/gyrosensorname"/>
+
+    <CheckBox
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="@string/cb_sampling_text"
+        android:id="@+id/cb_sampling"
+        android:paddingTop="10px"
+        android:paddingBottom="10px"/>
+
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:id="@+id/state"/>
+
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:id="@+id/samplecounter"
+        android:visibility="invisible"/>
+
+    <com.cellasoft.taptap.BallPanel
+        android:layout_height="fill_parent"
+        android:layout_width="fill_parent"
+        android:id="@+id/ball"
+        android:visibility="invisible"></com.cellasoft.taptap.BallPanel>
+
+</LinearLayout>

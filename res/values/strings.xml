@@ -10,6 +10,9 @@
     <string name="start">Start</string>
 
     <string name="stop">Stop</string>
+    <string name="cb_sound_text">Sound</string>
+    <string name="sensitivity">Sensitivity: 3.0</string>
+    <string name="noise">Noise sensitivity: 3</string>
 
 </resources>
 

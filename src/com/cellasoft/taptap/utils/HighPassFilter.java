@@ -1,4 +1,4 @@
-package com.cellasoft.taptap;
+package com.cellasoft.taptap.utils;
 
 public class HighPassFilter {
     private final float alpha = 0.4f;

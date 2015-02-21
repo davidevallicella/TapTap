@@ -3,6 +3,15 @@ package com.cellasoft.taptap.utils;
 import android.util.Log;
 
 public class DetectTap {
+    // Declare the previous state, current state of x axis accelerometer data. 
+    private int CurrentState_X;
+
+    static final long PULSE_LTCY = 20L;
+    static final long PULSE_TMLT = 50L;
+
+    long PULSE_THSZ = 2;
+    public String axes;
+
     // Accelerometer data state
     static class PulseState {
         public static final int
@@ -20,12 +29,12 @@ public class DetectTap {
                 DoubleTap = 2;
     }
 
-    // Declare the previous state, current state of x axis accelerometer data. 
-    private static int CurrentState_X;
+    public DetectTap(int thsz, String axes) {
+        this.PULSE_THSZ = thsz;
+        this.axes = axes;
+    }
 
-    static final long PULSE_LTCY = 10L;
-    static final long PULSE_TMLT = 30L;
-    static final long PULSE_THSZ = 2;
+
     long t_initial;
     /*
     *
@@ -51,8 +60,9 @@ public class DetectTap {
         switch (CurrentState_X) {
             case PulseState.PositivePulse:
             case PulseState.NegativePulse:
-                if ((t - pt) > PULSE_LTCY) {
-                    Log.d("DEBUG", "Non active --->");
+                long e = t - pt;
+                if (e > PULSE_LTCY) {
+                    Log.d("DEBUG", "Non active ---> " + axes + " t " + e);
                     CurrentState_X = PulseState.NonActive;
                 }
                 break;
@@ -74,6 +84,7 @@ public class DetectTap {
                 }
                 break;
             case PulseState.NonActive:
+                pt = 0;
                 if (Math.abs(deltax) >= PULSE_THSZ) {
                     t_initial = System.currentTimeMillis();
                     CurrentState_X = PulseState.Active;
@@ -98,19 +109,20 @@ public class DetectTap {
             case PulseState.PositivePulse:
                 switch (tap) {
                     case TapState.NoTap:
-                        Log.d("DEBUG", "TAP");
+                        Log.d("DEBUG", "TAP " + axes);
                         dt_initial = t;
                         tap = TapState.SingleTap;
                         break;
                     case TapState.SingleTap:
                         long elapse = t - dt_initial;
-                        if (elapse > 20) {
+                        if (elapse > 30L) {
                             if (elapse > PULSE_WIND) {
-                                Log.d("DEBUG", "RESET");
+                                Log.d("DEBUG", "RESET " + axes);
                                 tap = TapState.NoTap;
                                 CurrentState_X = PulseState.NonActive;
                             } else {
                                 tap = TapState.DoubleTap;
+                                CurrentState_X = PulseState.NonActive;
                             }
                         } else {
                             CurrentState_X = PulseState.NonActive;
@@ -129,7 +141,7 @@ public class DetectTap {
                     case TapState.SingleTap:
                         long elapse = t - dt_initial;
                         if (elapse > PULSE_WIND) {
-                            Log.d("DEBUG", "RESET");
+                            Log.d("DEBUG", "RESET " + axes);
                             tap = TapState.NoTap;
                             CurrentState_X = PulseState.NonActive;
                         }

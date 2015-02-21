@@ -82,7 +82,7 @@ public class DeviceManager {
     }
 
     public void registerListener(SensorEventListener listener, Sensor sensor) {
-        sm.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_FASTEST);
+        sm.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_GAME);
     }
 
     public void unregisterListener(SensorEventListener listener) {

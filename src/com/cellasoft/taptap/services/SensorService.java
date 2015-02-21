@@ -25,7 +25,7 @@ public class SensorService extends Service implements SensorEventListener {
     public static final int ACCEL_DEVIATION_LENGTH = 5;
     public static final double ACCEL_NOISE_LIMIT = 0.1;
     public static final double GYRO_NOISE_LIMIT = 0.06;
-    public static final long DIFF_UPDATE_TIMEOUT = 100L;
+    public long DIFF_UPDATE_TIMEOUT = 3L;
     public static final int SENSORTYPE_NA = 0;
     public static final int SENSORTYPE_ACCEL = 1;
     public static final int SENSORTYPE_GYRO = 0;
@@ -194,15 +194,20 @@ public class SensorService extends Service implements SensorEventListener {
         }
     }
 
+    long tinitial;
+    int tap = 0;
+    boolean delayFast = false;
+
     private void processMeasuring(long timeStamp, int sensorType, float values[]) {
-        double dv[] = new double[3];
-        dv[IDX_X] = (double) values[0];
-        dv[IDX_Y] = (double) values[1];
-        dv[IDX_Z] = (double) values[2];
+        if (dm.isScreenOn()) {
+            return;
+        }
+
+        float dv[] = values.clone();
 
         if (sensorType == SENSORTYPE_ACCEL) {
-            double accelLen = Math.sqrt(dv[IDX_X] * dv[IDX_X] + dv[IDX_Y] * dv[IDX_Y] + dv[IDX_Z] * dv[IDX_Z]);
-            if ((accelLen < gravityAccelHighLimit) && (accelLen > gravityAccelLowLimit)) {
+            double magnitude = Math.sqrt(dv[IDX_X] * dv[IDX_X] + dv[IDX_Y] * dv[IDX_Y] + dv[IDX_Z] * dv[IDX_Z]);
+            if ((magnitude < gravityAccelHighLimit) && (magnitude > gravityAccelLowLimit)) {
                 if (gravityAccelLimitLen < 0) {
                     gravityAccelLimitLen = ACCEL_DEVIATION_LENGTH;
                 }
@@ -219,25 +224,49 @@ public class SensorService extends Service implements SensorEventListener {
                 gravityAccelLimitLen = -1;
             }
 
-            double[] diff = vecdiff(dv, simulatedGravity);
-            double[] rotatedDiff = rotateToEarth(diff);
+            // (strappo)la derivata dell'accelerazione rispetto al tempo;
+            // indica la variazione dell'accelerazione nel tempo
+            double[] jerk = vecdiff(dv, simulatedGravity);
+            //double[] rotatedDiff = rotateToEarth(jerk);
+
+            double pi = Math.abs(jerk[IDX_X]) + Math.abs(jerk[IDX_Y]) + Math.abs(jerk[IDX_Z]);
 
             long currentTime = System.currentTimeMillis();
-            long tdiff = currentTime - diffTimeStamp;
 
-            // if ((diffTimeStamp < 0L) || (tdiff > DIFF_UPDATE_TIMEOUT)) {
-            diffTimeStamp = currentTime;
-            gestureRecognition(rotatedDiff);
-            if (Math.round(diff[IDX_Z] * 1000.0) / 1000.0 != 0) {
+            if (tinitial > 0) {
+                long elapse = currentTime - tinitial;
 
-                Log.d(LOG_TAG, "x: " +
-                        Math.round(diff[IDX_X] * 1000.0) / 1000.0 +
-                        " y: " +
-                        Math.round(diff[IDX_Y] * 1000.0) / 1000.0 +
-                        " z: " +
-                        Math.round(diff[IDX_Z] * 1000.0) / 1000.0);
+                if (elapse > 255) {
+                    Log.d(LOG_TAG, "RESET t: " + (currentTime - tinitial));
+                    tap = 0;
+                    tinitial = 0;
+                    delayFast = false;
+                } else if(elapse >= 100){
+                    delayFast = elapse >= 100;
+                }
             }
-            //   }
+
+            if (delayFast || (diffTimeStamp < 0L) || (currentTime - diffTimeStamp > DIFF_UPDATE_TIMEOUT)) {
+                diffTimeStamp = currentTime;
+
+                if (pi > 10) {
+                    Log.d(LOG_TAG, "PI " + pi + "\t\tt: " + (currentTime - tinitial) + "\t\t n: " + tap);
+                    tap += 1;
+                    if (tap == 1) {
+                        tinitial = currentTime;
+                        Log.d(LOG_TAG, "TAP");
+                    } else if (tap < 3) {
+                        if ((currentTime - tinitial) > 100 && (currentTime - tinitial) < 255) {
+                            Log.d(LOG_TAG, "DOUBLE TAP");
+
+                            if (!dm.isScreenOn()) {
+                                dm.turnScreenON(1);
+                            }
+                        }
+                    }
+                }
+            }
+
         } else if (sensorType == SENSORTYPE_GYRO) {
             if (previousTimeStamp >= 0L) {
                 double dt = (double) (timeStamp - previousTimeStamp) / 1000000000.0;
@@ -256,7 +285,10 @@ public class SensorService extends Service implements SensorEventListener {
     }
 
     private void gestureRecognition(double v[]) {
-        if (dtx.detectDoublePulse(v[IDX_Z])) {
+        boolean isdtx = dtx.detectDoublePulse(v[IDX_X]);
+        boolean isdtz = dtz.detectDoublePulse(v[IDX_Z]);
+
+        if (isdtx && isdtz) {
             Log.d("TEST", "DOUBLE TAP X");
             if (dm.isScreenOn()) {
                 dm.turnScreenOFF();
@@ -294,7 +326,7 @@ public class SensorService extends Service implements SensorEventListener {
         vec[IDX_X] = z * Math.sin(dy) + x * Math.cos(dy);
     }
 
-    private double[] vecdiff(double v1[], double v2[]) {
+    private double[] vecdiff(float v1[], double v2[]) {
         double diff[] = new double[3];
         diff[IDX_X] = v1[IDX_X] - v2[IDX_X];
         diff[IDX_Y] = v1[IDX_Y] - v2[IDX_Y];
@@ -342,7 +374,9 @@ public class SensorService extends Service implements SensorEventListener {
 
     private DeviceManager dm;
     private OnAllarmScreenReceiver receiver;
-    private DetectTap dtx = new DetectTap();
+    private DetectTap dtx = new DetectTap(1, "X");
+    private DetectTap dty = new DetectTap(1, "Y");
+    private DetectTap dtz = new DetectTap(2, "Z");
     private boolean isStarted = false;
     private Sensor accelSensor;
     private Sensor gyroSensor;

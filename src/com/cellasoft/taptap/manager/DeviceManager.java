@@ -10,7 +10,7 @@ import android.os.PowerManager;
 import java.util.List;
 
 /**
- * Created by netsysco on 14/02/2015.
+ * Created by Davide Vallicella on 14/02/2015.
  * <p/>
  * <p/>
  * Flag Value                CPU        Screen               Keyboard
@@ -50,13 +50,18 @@ public class DeviceManager {
     }
 
     public void turnScreenON(long timeout) {
+        if (isScreenOn()) {
+            return;
+        }
         releaseScreen();
         acquireScreen(timeout);
     }
 
     public void turnScreenOFF() {
-        releaseScreen();
-        dpm.lockNow();
+        if (isScreenOn()) {
+            releaseScreen();
+            dpm.lockNow();
+        }
     }
 
     private void acquireScreen(long timeout) {
@@ -82,20 +87,41 @@ public class DeviceManager {
     }
 
     public void registerListener(SensorEventListener listener, Sensor sensor) {
-        sm.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_GAME);
+        if (listener == null) {
+            return;
+        }
+        sm.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_FASTEST);
     }
 
     public void unregisterListener(SensorEventListener listener) {
+        if (listener == null) {
+            return;
+        }
         sm.unregisterListener(listener);
     }
 
+    public void unregisterListener(SensorEventListener listener, Sensor sensor) {
+        if (listener == null) {
+            return;
+        }
+        sm.unregisterListener(listener, sensor);
+    }
+
     public Sensor getAccelSensor() {
-        List<Sensor> sensors = sm.getSensorList(Sensor.TYPE_ACCELEROMETER);
-        return sensors.size() == 0 ? null : sensors.get(0);
+        return getSensor(Sensor.TYPE_ACCELEROMETER);
     }
 
     public Sensor getGyroSensor() {
-        List<Sensor> sensors = sm.getSensorList(Sensor.TYPE_GYROSCOPE);
+        return getSensor(Sensor.TYPE_GYROSCOPE);
+    }
+
+    public Sensor getProxSensor() {
+        return getSensor(Sensor.TYPE_PROXIMITY);
+    }
+
+
+    private Sensor getSensor(int type) {
+        List<Sensor> sensors = sm.getSensorList(type);
         return sensors.size() == 0 ? null : sensors.get(0);
     }
 

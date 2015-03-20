@@ -1,0 +1,101 @@
+Samsung Galaxy Teos
+-------------------
+* When awake
+    Normal: 4.17 Hz
+    UI: 8.43 hz
+    Game: 16.93 Hz
+    Fastest: 109.42 Hz
+
+* When asleep
+    The phone sends null values (0), whatever the mode I chose
+
+
+Samsung Nexus S
+---------------
+* When awake
+    Normal: 49.51 Hz
+    UI: 49.51 hz
+    Game: 49.51 Hz
+    Fastest: 49.51 Hz
+
+* When asleep
+    6.06 Hz, whatever the mode I chose
+
+LG Nexus 5
+----------
+* When awake
+    Normal: 15.39 Hz
+    UI: 15.4 Hz
+    Game: 50.05 Hz
+    Fastest: 196.74 Hz
+
+* When asleep
+    Normal: 4.96 Hz
+    UI: 15.41 Hz
+    Game: 50.12 Hz
+    Fastest: 198.53 Hz
+
+LG Nexus 4
+----------
+* When awake
+    Normal: 15.75 Hz
+    UI: 15.74 Hz
+    Game: 48.86 Hz
+    Fastest: 195.85 Hz
+
+* When asleep
+    Normal: 5.5 Hz
+    UI: 15.74 Hz
+    Game: 49.16 Hz
+    Fastest: 196.75 Hz
+
+
+Samsung Galaxy Nexus
+--------------------
+* When awake
+    Fastest: 125 Hz
+
+* When asleep
+    It sends data
+
+
+Samsung Galaxy Note 2
+---------------------
+* When awake
+    Fastest: 100 Hz
+
+* When asleep
+    The phone does not send anything
+
+
+Samsung Galaxy S3 and S3 Mini
+-----------------------------
+* When awake
+    Fastest: 100 Hz
+
+* When asleep
+    Fastest: 100 Hz
+
+
+HTC Wildfire
+------------
+* When awake
+    Normal: 4 Hz
+    UI: 12 hz
+    Game: 22.2 Hz
+    Fastest: 38.40 Hz
+
+* When asleep
+    The phone does not send anything, whatever the mode I chose
+
+
+HTC Desire
+----------
+* When awake
+    Normal: 4.36 Hz
+    UI: 11.9 hz
+    Game: 23.3 Hz
+    Fastest: 47.27 Hz
+
+* When asleep
+    The phone does not send anything, whatever the mode I chose

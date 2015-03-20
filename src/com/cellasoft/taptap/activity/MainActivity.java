@@ -15,18 +15,22 @@ import android.view.View;
 import android.widget.CheckBox;
 import com.cellasoft.taptap.R;
 import com.cellasoft.taptap.receiver.AdminReceiver;
-import com.cellasoft.taptap.services.ISensorService;
+import com.cellasoft.taptap.services.ITapTapWakeupService;
 
 /**
  * Created by Davide Vallicella on 02/02/2015.
  */
 public class MainActivity extends Activity {
 
-    static final String LOG_TAG = "TAPTAP";
+    static final String LOG_TAG               = "TAPTAP";
     static final String SERVICE_ACTIVATED_KEY = "isActive";
-    static final int RESULT_ENABLE = 1;
+    static final int    RESULT_ENABLE         = 1;
 
     private boolean isActive = false;
+    private ComponentName compName;
+    private boolean                  isServiceRunning = false;
+    private ITapTapWakeupService     sensorService    = null;
+    private SensorsServiceConnection sensorConnection = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,10 +101,10 @@ public class MainActivity extends Activity {
     }
 
     private void bindService() {
-        Log.d(LOG_TAG, "bindService");
+        Log.d(LOG_TAG, "bindTapTapWakeupService");
         sensorConnection = new SensorsServiceConnection();
         Intent i = new Intent();
-        i.setClassName("com.cellasoft.taptap", "com.cellasoft.taptap.services.SensorService");
+        i.setClassName("com.cellasoft.taptap", "com.cellasoft.taptap.services.TapTapWakeupService");
         bindService(i, sensorConnection, Context.BIND_AUTO_CREATE);
     }
 
@@ -108,15 +112,15 @@ public class MainActivity extends Activity {
         if (isServiceRunning) {
             stopSensorsService();
         }
-        Log.d(LOG_TAG, "startSensorService");
+        Log.d(LOG_TAG, "startTapTapWakeupService");
         Intent i = new Intent();
-        i.setClassName("com.cellasoft.taptap", "com.cellasoft.taptap.services.SensorService");
+        i.setClassName("com.cellasoft.taptap", "com.cellasoft.taptap.services.TapTapWakeupService");
         startService(i);
         isServiceRunning = true;
     }
 
     private void stopSensorsService() {
-        Log.d(LOG_TAG, "stopSensorService");
+        Log.d(LOG_TAG, "stopTapTapWakeupService");
         if (isServiceRunning) {
             if (sensorService == null)
                 Log.e(LOG_TAG, "stopSensorService: Service not available!");
@@ -141,7 +145,7 @@ public class MainActivity extends Activity {
 
     private void updateSensorsServiceRunning() {
         if (sensorService == null)
-            Log.e(LOG_TAG, "updateSensorsServiceRunning: Service not available");
+            Log.e(LOG_TAG, "updateTapTapWakeupServiceRunning: Service not available");
         else {
             try {
                 isServiceRunning = sensorService.isRunning();
@@ -153,17 +157,12 @@ public class MainActivity extends Activity {
         }
     }
 
-    private ComponentName compName;
-    private boolean isServiceRunning = false;
-    private ISensorService sensorService = null;
-    private SensorsServiceConnection sensorConnection = null;
-
     class SensorsServiceConnection implements ServiceConnection {
 
         @Override
         public void onServiceConnected(ComponentName className, IBinder boundService) {
             Log.d(LOG_TAG, "onServiceConnected");
-            sensorService = ISensorService.Stub.asInterface(boundService);
+            sensorService = ITapTapWakeupService.Stub.asInterface(boundService);
             updateSensorsServiceRunning();
         }
 
